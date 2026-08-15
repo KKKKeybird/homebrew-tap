@@ -21,7 +21,5 @@ jobs:
       - name: Validate cask
         run: |
           brew tap KKKKeybird/tap
-          tap_path="$(brew --repository KKKKeybird/tap)"
-          cp Casks/moonlight-vplus.rb "$tap_path/Casks/moonlight-vplus.rb"
           brew style --cask KKKKeybird/tap/moonlight-vplus
           brew audit --cask --online KKKKeybird/tap/moonlight-vplus
