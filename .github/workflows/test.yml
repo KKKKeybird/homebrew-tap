@@ -10,6 +10,15 @@ permissions:
 
 jobs:
   test:
+    strategy:
+      fail-fast: false
+      matrix:
+        cask:
+          - haima-cloud
+          - moonlight-vplus
+          - scriptplayerplus
+          - tmog
+          - xenolauncher
     runs-on: macos-26
     steps:
       - name: Check out tap
@@ -21,5 +30,5 @@ jobs:
       - name: Validate cask
         run: |
           brew tap KKKKeybird/tap
-          brew style --cask KKKKeybird/tap/moonlight-vplus
-          brew audit --cask --online KKKKeybird/tap/moonlight-vplus
+          brew style --cask "KKKKeybird/tap/${{ matrix.cask }}"
+          brew audit --cask --online "KKKKeybird/tap/${{ matrix.cask }}"
