@@ -84,3 +84,44 @@ else
   haima_sha256="$(curl -fsSL "$haima_url" | sha256sum | cut -d ' ' -f 1)"
   update_cask "haima-cloud" "$haima_version" "$haima_sha256"
 fi
+
+fn_sync_page="$(curl -fsSL 'https://fnnas.com/download?key=fn-sync-client')"
+fn_sync_version="$(sed -n 's/.*fn-sync_\([0-9][0-9.]*\)_aarch64\.dmg.*/\1/p' <<<"$fn_sync_page" | head -n 1)"
+current_fn_sync_version="$(sed -n 's/^  version "\(.*\)"$/\1/p' Casks/fn-sync.rb)"
+
+if [[ -z "$fn_sync_version" ]]; then
+  echo "Unable to determine the latest Feiniu Sync version." >&2
+  exit 1
+fi
+
+if [[ "$current_fn_sync_version" != "$fn_sync_version" ]]; then
+  echo "Feiniu Sync ${fn_sync_version} is available; refresh the signed mirror release." >&2
+  exit 1
+fi
+echo "fn-sync is current at ${fn_sync_version}."
+
+qiyou_json="$(curl -fsSL 'https://apifast.qiyou.cn/api/common_bll/v1/official_web/download_url?client_type=MAC')"
+qiyou_url="$(jq -r '.download_url // empty' <<<"$qiyou_json")"
+qiyou_compact_version="$(sed -n 's/.*vrelease-\([0-9][0-9]*\)-Release.*/\1/p' <<<"$qiyou_url")"
+
+if [[ ! "$qiyou_compact_version" =~ ^([0-9])([0-9])([0-9]+)$ ]]; then
+  echo "Unable to determine the latest Qiyou version from: ${qiyou_url}" >&2
+  exit 1
+fi
+
+qiyou_version="${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.${BASH_REMATCH[3]}"
+qiyou_version_template='vrelease-#{version.major}#{version.minor}#{version.patch}'
+qiyou_url_template="${qiyou_url/vrelease-${qiyou_compact_version}/$qiyou_version_template}"
+current_qiyou_version="$(sed -n 's/^  version "\(.*\)"$/\1/p' Casks/qiyou.rb)"
+current_qiyou_url="$(sed -n 's/^  url "\(.*\)",$/\1/p' Casks/qiyou.rb)"
+
+if [[ "$current_qiyou_version" == "$qiyou_version" && "$current_qiyou_url" == "$qiyou_url_template" ]]; then
+  echo "qiyou is current at ${qiyou_version}."
+else
+  qiyou_sha256="$(curl -fsSL "$qiyou_url" | sha256sum | cut -d ' ' -f 1)"
+  update_cask "qiyou" "$qiyou_version" "$qiyou_sha256"
+  QIYOU_URL="$qiyou_url_template" ruby -pi -e '
+    gsub(/^  url ".*",$/, %(  url "#{ENV.fetch("QIYOU_URL")}",))
+  ' Casks/qiyou.rb
+  echo "Updated qiyou download URL."
+fi
