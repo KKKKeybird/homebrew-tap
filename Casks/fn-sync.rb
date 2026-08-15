@@ -1,9 +1,11 @@
+require_relative "../lib/fn_signed_download_strategy"
+
 cask "fn-sync" do
   version "0.2.3"
-  sha256 "ff3791311ce0d2dd4469f39aa79af07bea68f8625e689219221736ebaa34e637"
+  sha256 "4bca0c5f0d57a0aafd7c20545edf5c1f8b82151e7baf9bb7ff2113deb5605994"
 
-  url "https://github.com/KKKKeybird/homebrew-tap/releases/download/fn-sync-#{version}/fn-sync-#{version}-arm64.zip",
-      verified: "github.com/KKKKeybird/homebrew-tap/"
+  url "https://iso.liveupdate.fnnas.com/pc/fn-sync_#{version}_aarch64.dmg",
+      using: FnSignedDownloadStrategy
   name "Feiniu Sync"
   name "飞牛同步"
   desc "Synchronize files with an fnOS NAS"
@@ -25,9 +27,4 @@ cask "fn-sync" do
     "~/Library/Caches/com.fn-sync-client.app",
     "~/Library/Preferences/com.fn-sync-client.app.plist",
   ]
-
-  caveats <<~EOS
-    This cask uses a Developer ID-signed mirror because the upstream CDN blocks
-    automated Homebrew downloads.
-  EOS
 end
