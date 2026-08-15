@@ -15,7 +15,6 @@ cask "xenolauncher" do
 
   depends_on arch: :arm64
   depends_on macos: :monterey
-  container nested: "Xenolauncher-arm64.tar.gz"
 
   app "Xenolauncher-arm64.app"
 
