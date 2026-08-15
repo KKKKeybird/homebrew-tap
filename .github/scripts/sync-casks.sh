@@ -110,15 +110,17 @@ if [[ ! "$qiyou_compact_version" =~ ^([0-9])([0-9])([0-9]+)$ ]]; then
 fi
 
 qiyou_version="${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.${BASH_REMATCH[3]}"
+qiyou_version_template='vrelease-#{version.major}#{version.minor}#{version.patch}'
+qiyou_url_template="${qiyou_url/vrelease-${qiyou_compact_version}/$qiyou_version_template}"
 current_qiyou_version="$(sed -n 's/^  version "\(.*\)"$/\1/p' Casks/qiyou.rb)"
 current_qiyou_url="$(sed -n 's/^  url "\(.*\)",$/\1/p' Casks/qiyou.rb)"
 
-if [[ "$current_qiyou_version" == "$qiyou_version" && "$current_qiyou_url" == "$qiyou_url" ]]; then
+if [[ "$current_qiyou_version" == "$qiyou_version" && "$current_qiyou_url" == "$qiyou_url_template" ]]; then
   echo "qiyou is current at ${qiyou_version}."
 else
   qiyou_sha256="$(curl -fsSL "$qiyou_url" | sha256sum | cut -d ' ' -f 1)"
   update_cask "qiyou" "$qiyou_version" "$qiyou_sha256"
-  QIYOU_URL="$qiyou_url" ruby -pi -e '
+  QIYOU_URL="$qiyou_url_template" ruby -pi -e '
     gsub(/^  url ".*",$/, %(  url "#{ENV.fetch("QIYOU_URL")}",))
   ' Casks/qiyou.rb
   echo "Updated qiyou download URL."
