@@ -13,12 +13,15 @@ jobs:
     runs-on: macos-26
     steps:
       - name: Check out tap
-        uses: actions/checkout@v4
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
       - name: Set up Homebrew
-        uses: Homebrew/actions/setup-homebrew@master
+        uses: Homebrew/actions/setup-homebrew@1f8e202ffddf94def7f42f6fa3a482e821489f9c # 2026.07.10.1
 
       - name: Validate cask
         run: |
-          brew style --cask Casks/moonlight-vplus.rb
-          brew audit --cask --online Casks/moonlight-vplus.rb
+          brew tap KKKKeybird/tap
+          tap_path="$(brew --repository KKKKeybird/tap)"
+          cp Casks/moonlight-vplus.rb "$tap_path/Casks/moonlight-vplus.rb"
+          brew style --cask KKKKeybird/tap/moonlight-vplus
+          brew audit --cask --online KKKKeybird/tap/moonlight-vplus
