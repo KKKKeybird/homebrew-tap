@@ -14,8 +14,10 @@ jobs:
       fail-fast: false
       matrix:
         cask:
+          - fn-sync
           - haima-cloud
           - moonlight-vplus
+          - qiyou
           - scriptplayerplus
           - tmog
           - xenolauncher

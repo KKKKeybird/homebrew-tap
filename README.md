@@ -6,8 +6,10 @@ Personal Homebrew tap for packages maintained by KeyBird.
 
 | Cask | Application |
 | --- | --- |
+| `fn-sync` | 飞牛同步 |
 | `haima-cloud` | 海马云电脑 |
 | `moonlight-vplus` | Moonlight V+ |
+| `qiyou` | 奇游加速器 |
 | `scriptplayerplus` | ScriptPlayer+ |
 | `tmog` | Task Manager TMOG |
 | `xenolauncher` | Xenolauncher |
