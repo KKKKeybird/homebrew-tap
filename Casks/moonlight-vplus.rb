@@ -14,7 +14,7 @@ cask "moonlight-vplus" do
   end
 
   depends_on arch: :arm64
-  depends_on macos: :big_sur
+  depends_on macos: :ventura
 
   app "Moonlight.app"
 end
