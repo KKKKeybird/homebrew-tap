@@ -8,6 +8,10 @@ cask "haima-cloud" do
   desc "Cloud computer and cloud gaming client"
   homepage "https://pc.haimacloud.com/"
 
+  livecheck do
+    skip "Upstream release API requires a POST request"
+  end
+
   depends_on arch: :arm64
   depends_on macos: :big_sur
 

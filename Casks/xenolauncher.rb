@@ -5,7 +5,7 @@ cask "xenolauncher" do
   url "https://github.com/m5kro/Xenolauncher/releases/download/#{version}/Xenolauncher-arm64.zip",
       verified: "github.com/m5kro/Xenolauncher/"
   name "Xenolauncher"
-  desc "Game launcher and compatibility layer for macOS"
+  desc "Game launcher and compatibility layer"
   homepage "https://github.com/m5kro/Xenolauncher"
 
   livecheck do
@@ -15,10 +15,11 @@ cask "xenolauncher" do
 
   depends_on arch: :arm64
   depends_on macos: :monterey
-
   container nested: "Xenolauncher-arm64.tar.gz"
-
   app "Xenolauncher-arm64.app"
 
-  caveats "The upstream build is not notarized. macOS may require opening it from the Finder context menu the first time."
+  caveats <<~EOS
+    The upstream build is not notarized. macOS may require opening it from the
+    Finder context menu the first time.
+  EOS
 end
