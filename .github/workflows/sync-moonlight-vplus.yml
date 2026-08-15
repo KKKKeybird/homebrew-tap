@@ -1,0 +1,70 @@
+name: Sync Moonlight V+ release
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-moonlight-vplus
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out tap
+        uses: actions/checkout@v4
+
+      - name: Read latest upstream release
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          release_json="$(gh api repos/qiin2333/moonlight-qt/releases/latest)"
+          version="$(jq -r '.tag_name | sub("^v"; "")' <<<"$release_json")"
+          asset_name="Moonlight-VPlus-${version}-arm64.dmg"
+          asset_url="$(jq -r --arg name "$asset_name" '.assets[] | select(.name == $name) | .browser_download_url' <<<"$release_json")"
+          digest="$(jq -r --arg name "$asset_name" '.assets[] | select(.name == $name) | .digest // empty' <<<"$release_json")"
+
+          if [[ -z "$asset_url" ]]; then
+            echo "Missing expected asset: $asset_name" >&2
+            exit 1
+          fi
+
+          if [[ "$digest" == sha256:* ]]; then
+            sha256="${digest#sha256:}"
+          else
+            sha256="$(curl -fsSL "$asset_url" | sha256sum | cut -d ' ' -f 1)"
+          fi
+
+          echo "version=$version" >>"$GITHUB_OUTPUT"
+          echo "sha256=$sha256" >>"$GITHUB_OUTPUT"
+
+      - name: Update cask
+        env:
+          VERSION: ${{ steps.release.outputs.version }}
+          SHA256: ${{ steps.release.outputs.sha256 }}
+        run: |
+          set -euo pipefail
+          ruby -pi -e 'gsub(/^  version ".*"$/, %(  version "#{ENV.fetch("VERSION")}")); gsub(/^  sha256 ".*"$/, %(  sha256 "#{ENV.fetch("SHA256")}"))' Casks/moonlight-vplus.rb
+
+      - name: Commit update
+        env:
+          VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          set -euo pipefail
+          if git diff --quiet; then
+            echo "Cask is already current."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Casks/moonlight-vplus.rb
+          git commit -m "moonlight-vplus ${VERSION}"
+          git push
