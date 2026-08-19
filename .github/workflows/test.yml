@@ -14,7 +14,6 @@ jobs:
       fail-fast: false
       matrix:
         cask:
-          - inshellisense-rounded
           - fn-sync
           - haima-cloud
           - moonlight-vplus
@@ -35,3 +34,25 @@ jobs:
           brew tap KKKKeybird/tap
           brew style --cask "KKKKeybird/tap/${{ matrix.cask }}"
           brew audit --cask --online "KKKKeybird/tap/${{ matrix.cask }}"
+
+  formula:
+    runs-on: macos-26
+    steps:
+      - name: Check out tap
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Set up Homebrew
+        uses: Homebrew/actions/setup-homebrew@1f8e202ffddf94def7f42f6fa3a482e821489f9c # 2026.07.10.1
+
+      - name: Validate and pour rounded formula bottle
+        shell: bash
+        run: |
+          set -euo pipefail
+          brew tap-new --no-git KKKKeybird/rounded-test
+          tap_root="$(brew --repository KKKKeybird/rounded-test)"
+          cp Formula/inshellisense-rounded.rb "${tap_root}/Formula/inshellisense-rounded.rb"
+          brew style --formula KKKKeybird/rounded-test/inshellisense-rounded
+          brew audit --formula --online KKKKeybird/rounded-test/inshellisense-rounded
+          brew install --formula KKKKeybird/rounded-test/inshellisense-rounded
+          brew info --json=v2 KKKKeybird/rounded-test/inshellisense-rounded |
+            jq -e '.formulae[0].installed[0].poured_from_bottle == true'
