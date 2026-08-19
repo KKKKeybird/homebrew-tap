@@ -1,15 +1,18 @@
-name: Sync cask releases
+name: Reusable cask sync
 
 on:
-  schedule:
-    - cron: "17 */6 * * *"
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      cask:
+        description: Cask token to update
+        required: true
+        type: string
 
 permissions:
   contents: write
 
 concurrency:
-  group: sync-cask-releases
+  group: sync-${{ inputs.cask }}-cask
   cancel-in-progress: true
 
 jobs:
@@ -19,19 +22,21 @@ jobs:
       - name: Check out tap
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
-      - name: Sync upstream releases
+      - name: Sync upstream release
         env:
+          CASK: ${{ inputs.cask }}
           GH_TOKEN: ${{ github.token }}
+        shell: bash
         run: |
           max_attempts=3
           for attempt in $(seq 1 "${max_attempts}"); do
-            echo "Sync attempt ${attempt}/${max_attempts}"
-            if .github/scripts/sync-casks.sh; then
+            echo "Sync attempt ${attempt}/${max_attempts} for ${CASK}"
+            if .github/scripts/sync-casks.sh "${CASK}"; then
               exit 0
             fi
 
             if [[ "${attempt}" -eq "${max_attempts}" ]]; then
-              echo "::error::Sync failed after ${max_attempts} attempts."
+              echo "::error::${CASK} sync failed after ${max_attempts} attempts."
               exit 1
             fi
 
@@ -40,16 +45,20 @@ jobs:
             sleep "${delay}"
           done
 
-      - name: Commit updates
+      - name: Commit update
+        env:
+          CASK: ${{ inputs.cask }}
+        shell: bash
         run: |
           set -euo pipefail
-          if git diff --quiet; then
-            echo "All casks are current."
+          if git diff --quiet -- "Casks/${CASK}.rb"; then
+            echo "${CASK} is current."
             exit 0
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add Casks
-          git commit -m "Update cask releases"
+          git add "Casks/${CASK}.rb"
+          git commit -m "Update ${CASK} cask"
+          git pull --rebase
           git push

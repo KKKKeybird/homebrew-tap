@@ -4,6 +4,15 @@ set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "${repo_root}"
 
+target="${1:-}"
+case "${target}" in
+  fn-sync|haima-cloud|inshellisense-rounded|moonlight-vplus|qiyou|scriptplayerplus|tmog|xenolauncher) ;;
+  *)
+    echo "Usage: $0 {fn-sync|haima-cloud|inshellisense-rounded|moonlight-vplus|qiyou|scriptplayerplus|tmog|xenolauncher}" >&2
+    exit 2
+    ;;
+esac
+
 update_cask() {
   local token="$1"
   local version="$2"
@@ -62,84 +71,128 @@ sync_github_cask() {
   update_cask "${token}" "${version}" "${sha256}"
 }
 
-sync_github_cask "moonlight-vplus" "qiin2333/moonlight-qt" "v" "Moonlight-VPlus-{version}-arm64.dmg"
-sync_github_cask "scriptplayerplus" "sioaeko/scriptplayer-plus" "v" "ScriptPlayerPlus-{version}-arm64-mac.dmg"
-sync_github_cask "xenolauncher" "m5kro/Xenolauncher" "" "Xenolauncher-arm64.zip"
+case "${target}" in
+  moonlight-vplus)
+    sync_github_cask "moonlight-vplus" "qiin2333/moonlight-qt" "v" "Moonlight-VPlus-{version}-arm64.dmg"
+    ;;
+  scriptplayerplus)
+    sync_github_cask "scriptplayerplus" "sioaeko/scriptplayer-plus" "v" "ScriptPlayerPlus-{version}-arm64-mac.dmg"
+    ;;
+  xenolauncher)
+    sync_github_cask "xenolauncher" "m5kro/Xenolauncher" "" "Xenolauncher-arm64.zip"
+    ;;
+esac
 
-tmog_json="$(curl -fsSL https://www.tmog.org/downloads/release.json)"
-tmog_version="$(jq -r '"\(.version),\(.build)"' <<<"${tmog_json}")"
-tmog_sha256="$(jq -r '.sha256' <<<"${tmog_json}")"
-update_cask "tmog" "${tmog_version}" "${tmog_sha256}"
-
-haima_json="$(curl -fsSL https://pc-rel.haimawan.com/cloud/app/version/latest \
-  -H 'Content-Type: application/json' \
-  -d '{"channelCode":"haimayun","clientType":"MAC","platform":"mac_arm"}')"
-haima_version="$(jq -r '.result.versionName // empty' <<<"${haima_json}")"
-haima_url="$(jq -r '.result.pkgUrl // empty' <<<"${haima_json}")"
-current_haima_version="$(sed -n 's/^  version "\(.*\)"$/\1/p' Casks/haima-cloud.rb)"
-
-if [[ -z "${haima_version}" || -z "${haima_url}" ]]
+if [[ "${target}" == "tmog" ]]
 then
-  echo "Haima release API did not return an arm64 macOS release." >&2
-  exit 1
+  tmog_json="$(curl -fsSL https://www.tmog.org/downloads/release.json)"
+  tmog_version="$(jq -r '"\(.version),\(.build)"' <<<"${tmog_json}")"
+  tmog_sha256="$(jq -r '.sha256' <<<"${tmog_json}")"
+  update_cask "tmog" "${tmog_version}" "${tmog_sha256}"
 fi
 
-if [[ "${current_haima_version}" == "${haima_version}" ]]
+if [[ "${target}" == "haima-cloud" ]]
 then
-  echo "haima-cloud is current at ${haima_version}."
-else
-  haima_sha256="$(curl -fsSL "${haima_url}" | sha256sum | cut -d ' ' -f 1)"
-  update_cask "haima-cloud" "${haima_version}" "${haima_sha256}"
+  haima_json="$(curl -fsSL https://pc-rel.haimawan.com/cloud/app/version/latest \
+    -H 'Content-Type: application/json' \
+    -d '{"channelCode":"haimayun","clientType":"MAC","platform":"mac_arm"}')"
+  haima_version="$(jq -r '.result.versionName // empty' <<<"${haima_json}")"
+  haima_url="$(jq -r '.result.pkgUrl // empty' <<<"${haima_json}")"
+  current_haima_version="$(sed -n 's/^  version "\(.*\)"$/\1/p' Casks/haima-cloud.rb)"
+
+  if [[ -z "${haima_version}" || -z "${haima_url}" ]]
+  then
+    echo "Haima release API did not return an arm64 macOS release." >&2
+    exit 1
+  fi
+
+  if [[ "${current_haima_version}" == "${haima_version}" ]]
+  then
+    echo "haima-cloud is current at ${haima_version}."
+  else
+    haima_sha256="$(curl -fsSL "${haima_url}" | sha256sum | cut -d ' ' -f 1)"
+    update_cask "haima-cloud" "${haima_version}" "${haima_sha256}"
+  fi
 fi
 
-fn_sync_page="$(curl -fsSL 'https://fnnas.com/download?key=fn-sync-client')"
-fn_sync_version="$(sed -n 's/.*fn-sync_\([0-9][0-9.]*\)_aarch64\.dmg.*/\1/p' <<<"${fn_sync_page}" | head -n 1)"
-
-if [[ -z "${fn_sync_version}" ]]
+if [[ "${target}" == "fn-sync" ]]
 then
-  echo "Unable to determine the latest Feiniu Sync version." >&2
-  exit 1
+  fn_sync_page="$(curl -fsSL 'https://fnnas.com/download?key=fn-sync-client')"
+  fn_sync_version="$(sed -n 's/.*fn-sync_\([0-9][0-9.]*\)_aarch64\.dmg.*/\1/p' <<<"${fn_sync_page}" | head -n 1)"
+
+  if [[ -z "${fn_sync_version}" ]]
+  then
+    echo "Unable to determine the latest Feiniu Sync version." >&2
+    exit 1
+  fi
+
+  fn_sync_url="https://iso.liveupdate.fnnas.com/pc/fn-sync_${fn_sync_version}_aarch64.dmg"
+  fn_sync_payload="$(jq -cn --arg url "${fn_sync_url}" '{url: $url}')"
+  fn_sync_signed_url="$(curl -fsSL 'https://fnnas.com/asset/download-sign' \
+    -H 'Content-Type: application/json' \
+    --data "${fn_sync_payload}" | jq -r '.url // empty')"
+
+  if [[ -z "${fn_sync_signed_url}" ]]
+  then
+    echo "Unable to obtain a signed Feiniu Sync download URL." >&2
+    exit 1
+  fi
+
+  fn_sync_sha256="$(curl -fsSL "${fn_sync_signed_url}" | sha256sum | cut -d ' ' -f 1)"
+  update_cask "fn-sync" "${fn_sync_version}" "${fn_sync_sha256}"
 fi
 
-fn_sync_url="https://iso.liveupdate.fnnas.com/pc/fn-sync_${fn_sync_version}_aarch64.dmg"
-fn_sync_payload="$(jq -cn --arg url "${fn_sync_url}" '{url: $url}')"
-fn_sync_signed_url="$(curl -fsSL 'https://fnnas.com/asset/download-sign' \
-  -H 'Content-Type: application/json' \
-  --data "${fn_sync_payload}" | jq -r '.url // empty')"
-
-if [[ -z "${fn_sync_signed_url}" ]]
+if [[ "${target}" == "qiyou" ]]
 then
-  echo "Unable to obtain a signed Feiniu Sync download URL." >&2
-  exit 1
+  qiyou_json="$(curl -fsSL 'https://apifast.qiyou.cn/api/common_bll/v1/official_web/download_url?client_type=MAC')"
+  qiyou_url="$(jq -r '.download_url // empty' <<<"${qiyou_json}")"
+  qiyou_compact_version="$(sed -n 's/.*vrelease-\([0-9][0-9]*\)-Release.*/\1/p' <<<"${qiyou_url}")"
+
+  if [[ ! "${qiyou_compact_version}" =~ ^([0-9])([0-9])([0-9]+)$ ]]
+  then
+    echo "Unable to determine the latest Qiyou version from: ${qiyou_url}" >&2
+    exit 1
+  fi
+
+  qiyou_version="${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.${BASH_REMATCH[3]}"
+  qiyou_version_template='vrelease-#{version.major}#{version.minor}#{version.patch}'
+  qiyou_url_template="${qiyou_url/vrelease-${qiyou_compact_version}/${qiyou_version_template}}"
+  current_qiyou_version="$(sed -n 's/^  version "\(.*\)"$/\1/p' Casks/qiyou.rb)"
+  current_qiyou_url="$(sed -n 's/^  url "\(.*\)",$/\1/p' Casks/qiyou.rb)"
+
+  if [[ "${current_qiyou_version}" == "${qiyou_version}" && "${current_qiyou_url}" == "${qiyou_url_template}" ]]
+  then
+    echo "qiyou is current at ${qiyou_version}."
+  else
+    qiyou_sha256="$(curl -fsSL "${qiyou_url}" | sha256sum | cut -d ' ' -f 1)"
+    update_cask "qiyou" "${qiyou_version}" "${qiyou_sha256}"
+    QIYOU_URL="${qiyou_url_template}" ruby -pi -e '
+      gsub(/^  url ".*",$/, %(  url "#{ENV.fetch("QIYOU_URL")}",))
+    ' Casks/qiyou.rb
+    echo "Updated qiyou download URL."
+  fi
 fi
 
-fn_sync_sha256="$(curl -fsSL "${fn_sync_signed_url}" | sha256sum | cut -d ' ' -f 1)"
-update_cask "fn-sync" "${fn_sync_version}" "${fn_sync_sha256}"
-
-qiyou_json="$(curl -fsSL 'https://apifast.qiyou.cn/api/common_bll/v1/official_web/download_url?client_type=MAC')"
-qiyou_url="$(jq -r '.download_url // empty' <<<"${qiyou_json}")"
-qiyou_compact_version="$(sed -n 's/.*vrelease-\([0-9][0-9]*\)-Release.*/\1/p' <<<"${qiyou_url}")"
-
-if [[ ! "${qiyou_compact_version}" =~ ^([0-9])([0-9])([0-9]+)$ ]]
+if [[ "${target}" == "inshellisense-rounded" ]]
 then
-  echo "Unable to determine the latest Qiyou version from: ${qiyou_url}" >&2
-  exit 1
-fi
+  release="$(gh api repos/KKKKeybird/inshellisense/releases/latest)"
+  tag="$(jq -r .tag_name <<<"${release}")"
+  source_sha="$(jq -r .target_commitish <<<"${release}")"
+  version="$(gh api "repos/KKKKeybird/inshellisense/contents/package.json?ref=${source_sha}" --jq .content | base64 --decode | jq -r .version)"
+  current_tag="$(sed -n 's/^# release_tag: //p' Casks/inshellisense-rounded.rb 2>/dev/null || true)"
 
-qiyou_version="${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.${BASH_REMATCH[3]}"
-qiyou_version_template='vrelease-#{version.major}#{version.minor}#{version.patch}'
-qiyou_url_template="${qiyou_url/vrelease-${qiyou_compact_version}/${qiyou_version_template}}"
-current_qiyou_version="$(sed -n 's/^  version "\(.*\)"$/\1/p' Casks/qiyou.rb)"
-current_qiyou_url="$(sed -n 's/^  url "\(.*\)",$/\1/p' Casks/qiyou.rb)"
-
-if [[ "${current_qiyou_version}" == "${qiyou_version}" && "${current_qiyou_url}" == "${qiyou_url_template}" ]]
-then
-  echo "qiyou is current at ${qiyou_version}."
-else
-  qiyou_sha256="$(curl -fsSL "${qiyou_url}" | sha256sum | cut -d ' ' -f 1)"
-  update_cask "qiyou" "${qiyou_version}" "${qiyou_sha256}"
-  QIYOU_URL="${qiyou_url_template}" ruby -pi -e '
-    gsub(/^  url ".*",$/, %(  url "#{ENV.fetch("QIYOU_URL")}",))
-  ' Casks/qiyou.rb
-  echo "Updated qiyou download URL."
+  if [[ "${tag}" == "${current_tag}" ]]
+  then
+    echo "inshellisense-rounded is current at ${tag}."
+  else
+    package_dir="$(mktemp -d)"
+    gh release download "${tag}" \
+      --repo KKKKeybird/inshellisense \
+      --pattern "microsoft-inshellisense-darwin-*.tgz" \
+      --dir "${package_dir}"
+    PACKAGE_DIR="${package_dir}" RELEASE_TAG="${tag}" SOURCE_SHA="${source_sha}" VERSION="${version}" \
+      node .github/scripts/update-inshellisense-rounded.mjs
+    rm -rf "${package_dir}"
+    echo "Updated inshellisense-rounded: ${current_tag:-missing} -> ${tag}"
+  fi
 fi
