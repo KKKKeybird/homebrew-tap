@@ -13,8 +13,8 @@ brew tap KKKKeybird/tap
 brew install inshellisense-rounded
 ```
 
-The formula is rebuilt automatically when the rounded-corner fork synchronizes
-with upstream.
+The rounded-corner fork builds and publishes its own releases. This tap only
+downloads those release assets and updates the formula and checksums.
 
 ## Available casks
 
