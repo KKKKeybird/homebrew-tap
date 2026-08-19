@@ -1,4 +1,4 @@
-name: Sync inshellisense-rounded cask
+name: Sync inshellisense-rounded formula
 
 on:
   schedule:
