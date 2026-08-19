@@ -31,11 +31,11 @@ const cask = `# release_tag: ${RELEASE_TAG}
 cask "inshellisense-rounded" do
   arch arm: "arm64", intel: "x64"
 
-  version "${VERSION}-rounded.${SOURCE_SHA.slice(0, 7)}"
+  version "${VERSION},${SOURCE_SHA.slice(0, 7)}"
   sha256 arm:   "${packages["darwin-arm64"].sha256}",
          intel: "${packages["darwin-x64"].sha256}"
 
-  url "https://github.com/KKKKeybird/inshellisense/releases/download/${RELEASE_TAG}/microsoft-inshellisense-darwin-#{arch}-${VERSION}.tgz"
+  url "https://github.com/KKKKeybird/inshellisense/releases/download/rounded-v#{version.csv.first}-#{version.csv.second}/microsoft-inshellisense-darwin-#{arch}-#{version.csv.first}.tgz"
   name "inshellisense Rounded"
   desc "IDE-style command-line autocomplete with rounded suggestion boxes"
   homepage "https://github.com/KKKKeybird/inshellisense/tree/agent/rounded-corners"

@@ -32,7 +32,8 @@ jobs:
 
       - name: Validate cask
         run: |
-          brew untap KKKKeybird/tap || true
-          brew tap KKKKeybird/tap "$GITHUB_WORKSPACE"
+          brew tap KKKKeybird/tap
+          tap_dir="$(brew --repository KKKKeybird/tap)"
+          cp "$GITHUB_WORKSPACE/Casks/${{ matrix.cask }}.rb" "$tap_dir/Casks/${{ matrix.cask }}.rb"
           brew style --cask "KKKKeybird/tap/${{ matrix.cask }}"
           brew audit --cask --online "KKKKeybird/tap/${{ matrix.cask }}"
