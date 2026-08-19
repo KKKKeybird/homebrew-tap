@@ -22,7 +22,23 @@ jobs:
       - name: Sync upstream releases
         env:
           GH_TOKEN: ${{ github.token }}
-        run: .github/scripts/sync-casks.sh
+        run: |
+          max_attempts=3
+          for attempt in $(seq 1 "${max_attempts}"); do
+            echo "Sync attempt ${attempt}/${max_attempts}"
+            if .github/scripts/sync-casks.sh; then
+              exit 0
+            fi
+
+            if [[ "${attempt}" -eq "${max_attempts}" ]]; then
+              echo "::error::Sync failed after ${max_attempts} attempts."
+              exit 1
+            fi
+
+            delay=$((attempt * 15))
+            echo "::warning::Sync attempt ${attempt} failed; retrying in ${delay}s."
+            sleep "${delay}"
+          done
 
       - name: Commit updates
         run: |
