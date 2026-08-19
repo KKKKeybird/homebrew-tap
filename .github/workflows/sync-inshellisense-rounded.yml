@@ -1,4 +1,4 @@
-name: Sync rounded inshellisense formula
+name: Sync rounded inshellisense cask
 
 on:
   schedule:
@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: sync-rounded-inshellisense-formula
+  group: sync-rounded-inshellisense-cask
   cancel-in-progress: false
 
 jobs:
@@ -30,7 +30,7 @@ jobs:
           tag="$(jq -r .tag_name <<<"${release}")"
           source_sha="$(jq -r .target_commitish <<<"${release}")"
           version="$(gh api "repos/KKKKeybird/inshellisense/contents/package.json?ref=${source_sha}" --jq .content | base64 --decode | jq -r .version)"
-          current_tag="$(sed -n 's/^# release_tag: //p' Formula/inshellisense-rounded.rb 2>/dev/null || true)"
+          current_tag="$(sed -n 's/^# release_tag: //p' Casks/inshellisense-rounded.rb 2>/dev/null || true)"
 
           echo "tag=${tag}" >> "$GITHUB_OUTPUT"
           echo "source_sha=${source_sha}" >> "$GITHUB_OUTPUT"
@@ -50,10 +50,10 @@ jobs:
         run: |
           gh release download "${RELEASE_TAG}" \
             --repo KKKKeybird/inshellisense \
-            --pattern "microsoft-inshellisense-*.tgz" \
+            --pattern "microsoft-inshellisense-darwin-*.tgz" \
             --dir /tmp/inshellisense-rounded-packages
 
-      - name: Update formula
+      - name: Update cask
         if: steps.release.outputs.changed == 'true'
         env:
           PACKAGE_DIR: /tmp/inshellisense-rounded-packages
@@ -62,14 +62,14 @@ jobs:
           VERSION: ${{ steps.release.outputs.version }}
         run: node .github/scripts/update-inshellisense-rounded.mjs
 
-      - name: Commit formula
+      - name: Commit cask
         if: steps.release.outputs.changed == 'true'
         shell: bash
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add Formula/inshellisense-rounded.rb
-          git commit -m "Update rounded inshellisense formula"
+          git add Casks/inshellisense-rounded.rb
+          git commit -m "Update rounded inshellisense cask"
           git pull --rebase
           git push

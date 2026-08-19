@@ -14,6 +14,7 @@ jobs:
       fail-fast: false
       matrix:
         cask:
+          - inshellisense-rounded
           - fn-sync
           - haima-cloud
           - moonlight-vplus
@@ -31,6 +32,6 @@ jobs:
 
       - name: Validate cask
         run: |
-          brew tap KKKKeybird/tap
+          brew tap KKKKeybird/tap "$GITHUB_WORKSPACE"
           brew style --cask "KKKKeybird/tap/${{ matrix.cask }}"
           brew audit --cask --online "KKKKeybird/tap/${{ matrix.cask }}"

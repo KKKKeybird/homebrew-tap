@@ -9,7 +9,7 @@ if (!PACKAGE_DIR || !RELEASE_TAG || !SOURCE_SHA || !VERSION) {
   );
 }
 
-const platforms = ["darwin-arm64", "darwin-x64", "linux-arm64", "linux-x64"];
+const platforms = ["darwin-arm64", "darwin-x64"];
 const files = await readdir(PACKAGE_DIR);
 const packages = {};
 
@@ -26,54 +26,28 @@ for (const platform of platforms) {
   };
 }
 
-const releaseUrl = (platform) =>
-  `https://github.com/KKKKeybird/inshellisense/releases/download/${RELEASE_TAG}/${packages[platform].filename}`;
-
-const formula = `# release_tag: ${RELEASE_TAG}
+const cask = `# release_tag: ${RELEASE_TAG}
 # source_commit: ${SOURCE_SHA}
-class InshellisenseRounded < Formula
+cask "inshellisense-rounded" do
+  arch arm: "arm64", intel: "x64"
+
+  version "${VERSION}-rounded.${SOURCE_SHA.slice(0, 7)}"
+  sha256 arm:   "${packages["darwin-arm64"].sha256}",
+         intel: "${packages["darwin-x64"].sha256}"
+
+  url "https://github.com/KKKKeybird/inshellisense/releases/download/${RELEASE_TAG}/microsoft-inshellisense-darwin-#{arch}-${VERSION}.tgz"
+  name "inshellisense Rounded"
   desc "IDE-style command-line autocomplete with rounded suggestion boxes"
   homepage "https://github.com/KKKKeybird/inshellisense/tree/agent/rounded-corners"
-  version "${VERSION}-rounded.${SOURCE_SHA.slice(0, 7)}"
-  license "MIT"
 
-  conflicts_with "inshellisense", because: "both install inshellisense and is binaries"
+  depends_on :macos
 
-  on_macos do
-    on_arm do
-      url "${releaseUrl("darwin-arm64")}"
-      sha256 "${packages["darwin-arm64"].sha256}"
-    end
+  binary "package/inshellisense-darwin-#{arch}", target: "inshellisense"
+  binary "package/inshellisense-darwin-#{arch}", target: "is"
 
-    on_intel do
-      url "${releaseUrl("darwin-x64")}"
-      sha256 "${packages["darwin-x64"].sha256}"
-    end
-  end
-
-  on_linux do
-    on_arm do
-      url "${releaseUrl("linux-arm64")}"
-      sha256 "${packages["linux-arm64"].sha256}"
-    end
-
-    on_intel do
-      url "${releaseUrl("linux-x64")}"
-      sha256 "${packages["linux-x64"].sha256}"
-    end
-  end
-
-  def install
-    binary = Dir["inshellisense-*"].fetch(0)
-    bin.install binary => "inshellisense"
-    bin.install_symlink "inshellisense" => "is"
-  end
-
-  test do
-    system bin/"inshellisense", "--version"
-  end
+  caveats "Run is reinit after installing or upgrading the cask."
 end
 `;
 
-await mkdir("Formula", { recursive: true });
-await writeFile("Formula/inshellisense-rounded.rb", formula);
+await mkdir("Casks", { recursive: true });
+await writeFile("Casks/inshellisense-rounded.rb", cask);
