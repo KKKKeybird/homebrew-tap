@@ -27,9 +27,10 @@ for (const platform of platforms) {
 }
 
 const releaseUrl = (platform) =>
-  `https://github.com/KKKKeybird/homebrew-tap/releases/download/${RELEASE_TAG}/${packages[platform].filename}`;
+  `https://github.com/KKKKeybird/inshellisense/releases/download/${RELEASE_TAG}/${packages[platform].filename}`;
 
-const formula = `# source_commit: ${SOURCE_SHA}
+const formula = `# release_tag: ${RELEASE_TAG}
+# source_commit: ${SOURCE_SHA}
 class InshellisenseRounded < Formula
   desc "IDE-style command-line autocomplete with rounded suggestion boxes"
   homepage "https://github.com/KKKKeybird/inshellisense/tree/agent/rounded-corners"
