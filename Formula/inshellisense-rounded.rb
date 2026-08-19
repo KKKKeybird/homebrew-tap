@@ -6,6 +6,11 @@ class InshellisenseRounded < Formula
   version "0.0.3-rounded.6cfeddd"
   license "MIT"
 
+  bottle do
+    root_url "https://github.com/KKKKeybird/inshellisense/releases/download/rounded-v0.0.3-6cfeddd"
+    sha256 cellar: :any_skip_relocation, arm64_tahoe: "48fecbd768ab4ba97101cfad83c02920b0e16058164ff908d0754d56e0a69e07"
+  end
+
   on_macos do
     on_arm do
       url "https://github.com/KKKKeybird/inshellisense/releases/download/rounded-v0.0.3-6cfeddd/microsoft-inshellisense-darwin-arm64-0.0.3.tgz"
@@ -16,11 +21,6 @@ class InshellisenseRounded < Formula
       url "https://github.com/KKKKeybird/inshellisense/releases/download/rounded-v0.0.3-6cfeddd/microsoft-inshellisense-darwin-x64-0.0.3.tgz"
       sha256 "cb414b9d07943fb17bd11102c13dfcbed5024570f06354e2ecb80fad796b406c"
     end
-  end
-
-  bottle do
-    root_url "https://github.com/KKKKeybird/inshellisense/releases/download/rounded-v0.0.3-6cfeddd"
-    sha256 cellar: :any_skip_relocation, arm64_tahoe: "48fecbd768ab4ba97101cfad83c02920b0e16058164ff908d0754d56e0a69e07"
   end
 
   conflicts_with "inshellisense", because: "both install inshellisense and is binaries"

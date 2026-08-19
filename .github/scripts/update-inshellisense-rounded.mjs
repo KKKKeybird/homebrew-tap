@@ -44,6 +44,11 @@ class InshellisenseRounded < Formula
   version "${formulaVersion}"
   license "MIT"
 
+  bottle do
+    root_url "${releaseRoot}"
+    sha256 cellar: :any_skip_relocation, arm64_tahoe: "${bottleSha256}"
+  end
+
   on_macos do
     on_arm do
       url "${releaseRoot}/${packages["darwin-arm64"].filename}"
@@ -54,11 +59,6 @@ class InshellisenseRounded < Formula
       url "${releaseRoot}/${packages["darwin-x64"].filename}"
       sha256 "${packages["darwin-x64"].sha256}"
     end
-  end
-
-  bottle do
-    root_url "${releaseRoot}"
-    sha256 cellar: :any_skip_relocation, arm64_tahoe: "${bottleSha256}"
   end
 
   conflicts_with "inshellisense", because: "both install inshellisense and is binaries"
