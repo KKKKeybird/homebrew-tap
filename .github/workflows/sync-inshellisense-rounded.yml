@@ -12,3 +12,5 @@ jobs:
     uses: ./.github/workflows/_sync-cask.yml
     with:
       cask: inshellisense-rounded
+      package_kind: formula
+      package_path: Formula/inshellisense-rounded.rb

@@ -179,16 +179,17 @@ then
   tag="$(jq -r .tag_name <<<"${release}")"
   source_sha="$(jq -r .target_commitish <<<"${release}")"
   version="$(gh api "repos/KKKKeybird/inshellisense/contents/package.json?ref=${source_sha}" --jq .content | base64 --decode | jq -r .version)"
-  current_tag="$(sed -n 's/^# release_tag: //p' Casks/inshellisense-rounded.rb 2>/dev/null || true)"
+  current_tag="$(sed -n 's/^# release_tag: //p' Formula/inshellisense-rounded.rb 2>/dev/null || true)"
 
   if [[ "${tag}" == "${current_tag}" ]]
   then
     echo "inshellisense-rounded is current at ${tag}."
   else
-    package_dir="$(mktemp -d)"
+    package_dir="$(mktemp -d "${RUNNER_TEMP:-/tmp}/inshellisense-rounded.XXXXXX")"
     gh release download "${tag}" \
       --repo KKKKeybird/inshellisense \
       --pattern "microsoft-inshellisense-darwin-*.tgz" \
+      --pattern "inshellisense-rounded-*.arm64_tahoe.bottle.tar.gz" \
       --dir "${package_dir}"
     PACKAGE_DIR="${package_dir}" RELEASE_TAG="${tag}" SOURCE_SHA="${source_sha}" VERSION="${version}" \
       node .github/scripts/update-inshellisense-rounded.mjs
