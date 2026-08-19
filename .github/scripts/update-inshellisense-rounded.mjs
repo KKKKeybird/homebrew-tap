@@ -40,6 +40,14 @@ cask "inshellisense-rounded" do
   desc "IDE-style command-line autocomplete with rounded suggestion boxes"
   homepage "https://github.com/KKKKeybird/inshellisense/tree/agent/rounded-corners"
 
+  livecheck do
+    url :url
+    regex(/^rounded-v(\\d+(?:\\.\\d+)+)-(\\h+)$/i)
+    strategy :github_latest do |json, regex|
+      json["tag_name"]&.scan(regex)&.map { |match| "#{match[0]},#{match[1]}" }
+    end
+  end
+
   depends_on :macos
 
   binary "package/inshellisense-darwin-#{arch}", target: "inshellisense"
