@@ -1,8 +1,8 @@
-name: Sync inshellisense-rounded cask
+name: Sync fn-sync cask
 
 on:
   schedule:
-    - cron: "21 5 * * *"
+    - cron: "7 0,6,12,18 * * *"
   workflow_dispatch:
 
 jobs:
@@ -11,4 +11,4 @@ jobs:
       contents: write
     uses: ./.github/workflows/_sync-cask.yml
     with:
-      cask: inshellisense-rounded
+      cask: fn-sync

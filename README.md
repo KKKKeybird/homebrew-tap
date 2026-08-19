@@ -40,5 +40,7 @@ brew update
 brew upgrade --cask <cask>
 ```
 
-Upstream releases are checked every six hours. When a new release is found,
-the cask version and SHA-256 checksum are updated automatically.
+Each cask has an independent sync workflow, so one unavailable upstream does
+not block updates for the other casks. Application releases are checked every
+six hours; rounded inshellisense releases are checked daily. When a new release
+is found, only that cask's version and SHA-256 checksum are updated.
