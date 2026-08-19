@@ -189,7 +189,7 @@ then
     gh release download "${tag}" \
       --repo KKKKeybird/inshellisense \
       --pattern "microsoft-inshellisense-darwin-*.tgz" \
-      --pattern "inshellisense-rounded--*.arm64_tahoe.bottle.tar.gz" \
+      --pattern "inshellisense-rounded-*.arm64_tahoe.bottle.tar.gz" \
       --dir "${package_dir}"
     PACKAGE_DIR="${package_dir}" RELEASE_TAG="${tag}" SOURCE_SHA="${source_sha}" VERSION="${version}" \
       node .github/scripts/update-inshellisense-rounded.mjs
