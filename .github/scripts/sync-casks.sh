@@ -6,9 +6,9 @@ cd "${repo_root}"
 
 target="${1:-}"
 case "${target}" in
-  fn-sync|haima-cloud|inshellisense-rounded|moonlight-vplus|qiyou|scriptplayerplus|tmog|xenolauncher) ;;
+  fn-sync|haima-cloud|moonlight-vplus|qiyou|scriptplayerplus|tmog|xenolauncher) ;;
   *)
-    echo "Usage: $0 {fn-sync|haima-cloud|inshellisense-rounded|moonlight-vplus|qiyou|scriptplayerplus|tmog|xenolauncher}" >&2
+    echo "Usage: $0 {fn-sync|haima-cloud|moonlight-vplus|qiyou|scriptplayerplus|tmog|xenolauncher}" >&2
     exit 2
     ;;
 esac
@@ -170,30 +170,5 @@ then
       gsub(/^  url ".*",$/, %(  url "#{ENV.fetch("QIYOU_URL")}",))
     ' Casks/qiyou.rb
     echo "Updated qiyou download URL."
-  fi
-fi
-
-if [[ "${target}" == "inshellisense-rounded" ]]
-then
-  release="$(gh api repos/KKKKeybird/inshellisense/releases/latest)"
-  tag="$(jq -r .tag_name <<<"${release}")"
-  source_sha="$(jq -r .target_commitish <<<"${release}")"
-  version="$(gh api "repos/KKKKeybird/inshellisense/contents/package.json?ref=${source_sha}" --jq .content | base64 --decode | jq -r .version)"
-  current_tag="$(sed -n 's/^# release_tag: //p' Formula/inshellisense-rounded.rb 2>/dev/null || true)"
-
-  if [[ "${tag}" == "${current_tag}" ]]
-  then
-    echo "inshellisense-rounded is current at ${tag}."
-  else
-    package_dir="$(mktemp -d "${RUNNER_TEMP:-/tmp}/inshellisense-rounded.XXXXXX")"
-    gh release download "${tag}" \
-      --repo KKKKeybird/inshellisense \
-      --pattern "microsoft-inshellisense-darwin-*.tgz" \
-      --pattern "inshellisense-rounded-*.arm64_tahoe.bottle.tar.gz" \
-      --dir "${package_dir}"
-    PACKAGE_DIR="${package_dir}" RELEASE_TAG="${tag}" SOURCE_SHA="${source_sha}" VERSION="${version}" \
-      node .github/scripts/update-inshellisense-rounded.mjs
-    rm -rf "${package_dir}"
-    echo "Updated inshellisense-rounded: ${current_tag:-missing} -> ${tag}"
   fi
 fi
