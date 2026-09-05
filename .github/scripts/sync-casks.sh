@@ -173,7 +173,7 @@ then
   fi
   qiyou_url_template="${qiyou_url/vrelease-${qiyou_raw_version}/${qiyou_version_template}}"
   current_qiyou_version="$(sed -n 's/^  version "\(.*\)"$/\1/p' Casks/qiyou.rb)"
-  current_qiyou_url="$(sed -n 's/^  url "\(.*\)",$/\1/p' Casks/qiyou.rb)"
+  current_qiyou_url="$(sed -n 's/^  url "\(.*\)"$/\1/p' Casks/qiyou.rb)"
 
   if [[ "${current_qiyou_version}" == "${qiyou_version}" && "${current_qiyou_url}" == "${qiyou_url_template}" ]]
   then
@@ -182,7 +182,7 @@ then
     qiyou_sha256="$(curl -fsSL "${qiyou_url}" | sha256sum | cut -d ' ' -f 1)"
     update_cask "qiyou" "${qiyou_version}" "${qiyou_sha256}"
     QIYOU_URL="${qiyou_url_template}" ruby -pi -e '
-      gsub(/^  url ".*",$/, %(  url "#{ENV.fetch("QIYOU_URL")}",))
+      gsub(/^  url ".*"$/, %(  url "#{ENV.fetch("QIYOU_URL")}"))
     ' Casks/qiyou.rb
     echo "Updated qiyou download URL."
   fi
