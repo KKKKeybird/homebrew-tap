@@ -146,17 +146,27 @@ if [[ "${target}" == "qiyou" ]]
 then
   qiyou_json="$(curl -fsSL 'https://apifast.qiyou.cn/api/common_bll/v1/official_web/download_url?client_type=MAC')"
   qiyou_url="$(jq -r '.download_url // empty' <<<"${qiyou_json}")"
-  qiyou_compact_version="$(sed -n 's/.*vrelease-\([0-9][0-9]*\)-Release.*/\1/p' <<<"${qiyou_url}")"
+  qiyou_raw_version="$(sed -n 's/.*vrelease-\([0-9][0-9.]*\)-Release.*/\1/p' <<<"${qiyou_url}")"
 
-  if [[ ! "${qiyou_compact_version}" =~ ^([0-9])([0-9])([0-9]+)$ ]]
+  if [[ "${qiyou_raw_version}" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]
+  then
+    qiyou_version="${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.${BASH_REMATCH[3]}"
+  elif [[ "${qiyou_raw_version}" =~ ^([0-9])([0-9])([0-9]+)$ ]]
+  then
+    qiyou_version="${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.${BASH_REMATCH[3]}"
+  else
+    echo "Unable to determine the latest Qiyou version from: ${qiyou_url}" >&2
+    exit 1
+  fi
+
+  if [[ -z "${qiyou_version}" ]]
   then
     echo "Unable to determine the latest Qiyou version from: ${qiyou_url}" >&2
     exit 1
   fi
 
-  qiyou_version="${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.${BASH_REMATCH[3]}"
   qiyou_version_template='vrelease-#{version.major}#{version.minor}#{version.patch}'
-  qiyou_url_template="${qiyou_url/vrelease-${qiyou_compact_version}/${qiyou_version_template}}"
+  qiyou_url_template="${qiyou_url/vrelease-${qiyou_raw_version}/${qiyou_version_template}}"
   current_qiyou_version="$(sed -n 's/^  version "\(.*\)"$/\1/p' Casks/qiyou.rb)"
   current_qiyou_url="$(sed -n 's/^  url "\(.*\)",$/\1/p' Casks/qiyou.rb)"
 
