@@ -165,7 +165,12 @@ then
     exit 1
   fi
 
-  qiyou_version_template='vrelease-#{version.major}#{version.minor}#{version.patch}'
+  if [[ "${qiyou_raw_version}" == *.* ]]
+  then
+    qiyou_version_template='vrelease-#{version}'
+  else
+    qiyou_version_template='vrelease-#{version.no_dots}'
+  fi
   qiyou_url_template="${qiyou_url/vrelease-${qiyou_raw_version}/${qiyou_version_template}}"
   current_qiyou_version="$(sed -n 's/^  version "\(.*\)"$/\1/p' Casks/qiyou.rb)"
   current_qiyou_url="$(sed -n 's/^  url "\(.*\)",$/\1/p' Casks/qiyou.rb)"
