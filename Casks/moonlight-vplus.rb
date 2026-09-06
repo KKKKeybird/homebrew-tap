@@ -17,11 +17,11 @@ cask "moonlight-vplus" do
 
   app "Moonlight.app"
 
-  preflight do
-    system_command "/usr/bin/xattr",
-                   args: ["-cr", "#{staged_path}/Moonlight.app"]
-    system_command "/usr/bin/codesign",
-                   args: ["--force", "--deep", "--sign", "-", "#{staged_path}/Moonlight.app"]
+  preflight_steps do
+    run "/usr/bin/xattr",
+        args: ["-cr", "{{staged_path}}/Moonlight.app"]
+    run "/usr/bin/codesign",
+        args: ["--force", "--deep", "--sign", "-", "{{staged_path}}/Moonlight.app"]
   end
 
   caveats <<~EOS
