@@ -1,8 +1,8 @@
 cask "qiyou" do
-  version "1.5.1"
-  sha256 "1f8252e134040a641e637d18754e70f9a30d27c223ebfc761ab39cf85b016f6e"
+  version "1.6.0"
+  sha256 "e2b90c328252c9606ef6291c24428d0899d0faad5355254d053d2d0999eced05"
 
-  url "https://static.qiyou.cn/upload/1786413954327/app_version/MacGameAccelerator-vrelease-#{version}-Release.dmg"
+  url "https://static.qiyou.cn/upload/1788841301406/app_version/MacGameAccelerator-vrelease-#{version}-Release(1761).dmg"
   name "Qiyou Game Accelerator"
   name "奇游加速器"
   desc "Game network accelerator"
