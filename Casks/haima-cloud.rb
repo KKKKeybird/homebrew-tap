@@ -14,7 +14,7 @@ cask "haima-cloud" do
   end
 
   depends_on arch: :arm64
-  depends_on macos: :big_sur
+  depends_on :macos
 
   app "海马云电脑.app"
 end

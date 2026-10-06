@@ -14,7 +14,7 @@ cask "tmog" do
     end
   end
 
-  depends_on macos: :ventura
+  depends_on macos: :sonoma
 
   app "Task Manager TMOG.app"
 end
