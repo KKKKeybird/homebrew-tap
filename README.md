@@ -8,6 +8,7 @@ Personal Homebrew tap for packages maintained by KeyBird.
 | ------------------ | ----------------- |
 | `fn-sync`          | 飞牛同步          |
 | `haima-cloud`      | 海马云电脑        |
+| `macchiato`        | Macchiato         |
 | `moonlight-vplus`  | Moonlight V+      |
 | `qiyou`            | 奇游加速器        |
 | `scriptplayerplus` | ScriptPlayer+     |

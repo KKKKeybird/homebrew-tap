@@ -6,9 +6,9 @@ cd "${repo_root}"
 
 target="${1:-}"
 case "${target}" in
-  fn-sync|haima-cloud|moonlight-vplus|qiyou|scriptplayerplus|tmog|xenolauncher) ;;
+  fn-sync|haima-cloud|macchiato|moonlight-vplus|qiyou|scriptplayerplus|tmog|xenolauncher) ;;
   *)
-    echo "Usage: $0 {fn-sync|haima-cloud|moonlight-vplus|qiyou|scriptplayerplus|tmog|xenolauncher}" >&2
+    echo "Usage: $0 {fn-sync|haima-cloud|macchiato|moonlight-vplus|qiyou|scriptplayerplus|tmog|xenolauncher}" >&2
     exit 2
     ;;
 esac
@@ -72,6 +72,9 @@ sync_github_cask() {
 }
 
 case "${target}" in
+  macchiato)
+    sync_github_cask "macchiato" "ObservedObserver/Macchiato" "" "Macchiato.dmg"
+    ;;
   moonlight-vplus)
     sync_github_cask "moonlight-vplus" "qiin2333/moonlight-qt" "v" "Moonlight-VPlus-{version}-arm64.dmg"
     ;;

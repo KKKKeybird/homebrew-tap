@@ -16,6 +16,7 @@ jobs:
         cask:
           - fn-sync
           - haima-cloud
+          - macchiato
           - moonlight-vplus
           - qiyou
           - scriptplayerplus

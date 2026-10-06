@@ -1,0 +1,14 @@
+name: Sync macchiato cask
+
+on:
+  schedule:
+    - cron: "56 0,6,12,18 * * *"
+  workflow_dispatch:
+
+jobs:
+  sync:
+    permissions:
+      contents: write
+    uses: ./.github/workflows/_sync-cask.yml
+    with:
+      cask: macchiato
