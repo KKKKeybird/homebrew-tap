@@ -7,6 +7,7 @@ Personal Homebrew tap for packages maintained by KeyBird.
 | Cask               | Application       |
 | ------------------ | ----------------- |
 | `convt-free`      | convt 免费源码构建 |
+| `finetune-hwong` | FineTune hwong103 fork |
 | `fn-sync`          | 飞牛同步          |
 | `haima-cloud`      | 海马云电脑        |
 | `macchiato`        | Macchiato         |
@@ -33,3 +34,6 @@ not block other updates. Cask releases are checked every six hours, and each run
 changes only its own package.
 
 For convt-free installation, Finder Quick Actions, local certificate signing and acceptance status, see [convt-free.md](convt-free.md) and the [build documentation](https://github.com/KKKKeybird/convt/blob/main/distribution/free/README.md). The public package is ad-hoc signed and is not Apple notarized.
+
+For the automatically mirrored hwong103 FineTune builds, installation and update details, see [finetune-hwong.md](finetune-hwong.md).
+

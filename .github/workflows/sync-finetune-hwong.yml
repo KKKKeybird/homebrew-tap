@@ -1,0 +1,117 @@
+name: Sync FineTune hwong103 build
+
+on:
+  schedule:
+    - cron: '23 */6 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/sync-finetune-hwong.yml'
+      - '.github/scripts/sync-finetune.py'
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: sync-finetune-hwong
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: macos-26
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+      HOMEBREW_NO_AUTO_UPDATE: '1'
+    steps:
+      - name: Check out tap
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Test sync logic
+        run: python3 -m unittest discover -s tests -v
+
+      - name: Download and validate latest upstream build
+        id: prepare
+        run: python3 .github/scripts/sync-finetune.py
+
+      - name: Set up Homebrew
+        if: steps.prepare.outputs.changed == 'true'
+        uses: Homebrew/actions/setup-homebrew@1f8e202ffddf94def7f42f6fa3a482e821489f9c # 2026.07.10.1
+
+      - name: Validate generated cask from this checkout
+        if: steps.prepare.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
+          tap_dir="$(brew --repository)/Library/Taps/kkkkeybird/homebrew-tap"
+          mkdir -p "$(dirname "$tap_dir")"
+          if [ -e "$tap_dir" ]; then
+            echo 'Unexpected pre-existing tap checkout' >&2
+            exit 1
+          fi
+          ln -s "$GITHUB_WORKSPACE" "$tap_dir"
+          brew style --cask KKKKeybird/tap/finetune-hwong
+          brew audit --cask KKKKeybird/tap/finetune-hwong
+
+      - name: Publish immutable installer and provenance
+        if: steps.prepare.outputs.changed == 'true'
+        env:
+          RELEASE_TAG: ${{ steps.prepare.outputs.tag }}
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/finetune-release"
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p = json.loads(Path('provenance.json').read_text())
+          Path('notes.md').write_text(
+              f"Unmodified community build from {p['upstream']}.\n\n"
+              f"Source commit: {p['commit']}\n\n"
+              f"Build: {p['run_url']} (attempt {p['run_attempt']})\n\n"
+              f"Artifact ID: {p['artifact_id']}\n\n"
+              f"Architectures: {', '.join(p['architectures'])}; macOS >= {p['minimum_macos']}.\n\n"
+              "The app is ad-hoc signed by upstream, not notarized by Apple. "
+              "The installer ZIP is mirrored byte-for-byte. SHA256SUMS and provenance.json "
+              "are included for verification.\n"
+          )
+          PY
+          if gh release view "$RELEASE_TAG" -R "$GITHUB_REPOSITORY" --json isDraft > release.json; then
+            if [ "$(python3 -c 'import json; print(json.load(open("release.json"))["isDraft"])')" = True ]; then
+              gh release upload "$RELEASE_TAG" FineTune-hwong.zip SHA256SUMS provenance.json \
+                --clobber -R "$GITHUB_REPOSITORY"
+            else
+              # A previous run may have published before its Git push failed.
+              # Do not mutate already-published binaries or their checksums.
+              mkdir existing
+              gh release download "$RELEASE_TAG" -R "$GITHUB_REPOSITORY" --dir existing \
+                --pattern FineTune-hwong.zip --pattern SHA256SUMS --pattern provenance.json
+              cmp FineTune-hwong.zip existing/FineTune-hwong.zip
+              cmp SHA256SUMS existing/SHA256SUMS
+              cmp provenance.json existing/provenance.json
+            fi
+          else
+            gh release create "$RELEASE_TAG" FineTune-hwong.zip SHA256SUMS provenance.json \
+              -R "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --draft \
+              --title "$RELEASE_TAG" --notes-file notes.md
+          fi
+          gh release edit "$RELEASE_TAG" -R "$GITHUB_REPOSITORY" --draft=false --latest=false
+
+      - name: Commit cask after successful release publication
+        if: steps.prepare.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add Casks/finetune-hwong.rb .github/finetune-hwong.json
+          git commit -m 'Update finetune-hwong from upstream build'
+          for attempt in 1 2 3; do
+            git pull --rebase origin main
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+          done
+          exit 1
