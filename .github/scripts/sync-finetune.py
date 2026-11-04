@@ -103,7 +103,7 @@ def render_cask(repository, version, run_id, attempt, digest, minimum, arches):
     arch_line = ""
     if len(arches) == 1:
         arch_line = f"  depends_on arch: :{'arm64' if 'arm64' in arches else 'x86_64'}\n"
-    tag = f"finetune-hwong-#{{version.before_comma}}-{run_id}-{attempt}"
+    tag = f"finetune-hwong-#{{version.csv.first}}-{run_id}-{attempt}"
     return f'''cask "finetune-hwong" do
   version "{version},{run_id}.{attempt}"
   sha256 "{digest}"

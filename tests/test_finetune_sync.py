@@ -70,7 +70,7 @@ class FineTuneSyncTests(unittest.TestCase):
         args = ["KKKKeybird/homebrew-tap", "1.9.1", 123, 1, "a" * 64, "15.4", {"arm64"}]
         first = sync.render_cask(*args)
         self.assertIn('version "1.9.1,123.1"', first)
-        self.assertIn('finetune-hwong-#{version.before_comma}-123-1/', first)
+        self.assertIn('finetune-hwong-#{version.csv.first}-123-1/', first)
         self.assertIn('depends_on arch: :arm64', first)
         self.assertIn('depends_on macos: :sequoia', first)
         self.assertIn('requires macOS 15.4 or later', first)

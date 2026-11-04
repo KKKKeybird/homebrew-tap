@@ -50,7 +50,7 @@ jobs:
           set -euo pipefail
           tap_dir="$(brew --repository)/Library/Taps/kkkkeybird/homebrew-tap"
           test "$(cd "$tap_dir" && pwd -P)" = "$(pwd -P)"
-          brew style --cask KKKKeybird/tap/finetune-hwong
+          brew style --fix --cask KKKKeybird/tap/finetune-hwong
           brew audit --cask KKKKeybird/tap/finetune-hwong
 
       - name: Publish immutable installer and provenance
