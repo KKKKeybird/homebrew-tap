@@ -1,0 +1,32 @@
+name: Update convt-free cask
+on:
+  schedule:
+    - cron: '47 */6 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/convt-free.yml', 'lib/update-convt-free.py']
+permissions:
+  contents: write
+concurrency:
+  group: convt-free-cask
+  cancel-in-progress: false
+jobs:
+  update:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Verify published ZIP against SHA256SUMS and generate cask
+        run: python3 lib/update-convt-free.py
+      - name: Validate Ruby and commit only changed cask
+        run: |
+          ruby -c Casks/convt-free.rb
+          if git diff --quiet -- Casks/convt-free.rb && ! git ls-files --others --exclude-standard Casks/convt-free.rb | grep -q .; then exit 0; fi
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add Casks/convt-free.rb
+          git commit -m 'chore: update convt-free from verified release'
+          git push
