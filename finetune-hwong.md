@@ -40,6 +40,10 @@ brew upgrade --cask finetune-hwong
 本 tap 不移除隔离属性、不关闭 Gatekeeper，也不重新签名应用。
 上游 fork 已移除 Sparkle 的原版更新源，后续使用 Homebrew 更新。
 
+当前包仅支持 Apple Silicon，要求 macOS 15.4 或更高版本。Homebrew 的系统依赖字段
+仅支持 macOS 大版本名称，因此 Cask 声明为 Sequoia 起，具体最低小版本写在安装提示中；
+不要在 macOS 15.0–15.3 上安装。
+
 ## 故障与回滚
 
 先查看 `Sync FineTune hwong103 build` 的失败步骤；可手动重跑同一同步工作流。

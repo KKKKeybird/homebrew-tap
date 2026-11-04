@@ -93,6 +93,13 @@ def render_cask(repository, version, run_id, attempt, digest, minimum, arches):
         raise ValueError("Invalid build identity or SHA-256")
     if not arches or not arches <= {"arm64", "x86_64"}:
         raise ValueError("Unsupported Mach-O architectures")
+    # Homebrew's Cask DSL accepts named macOS releases, not minor versions.
+    # Keep the exact application requirement visible in the caveats/manifest.
+    macos_names = {11: "big_sur", 12: "monterey", 13: "ventura", 14: "sonoma",
+                   15: "sequoia", 26: "tahoe"}
+    macos_name = macos_names.get(int(minimum.split(".")[0]))
+    if macos_name is None:
+        raise ValueError(f"Unsupported minimum macOS release: {minimum}")
     arch_line = ""
     if len(arches) == 1:
         arch_line = f"  depends_on arch: :{'arm64' if 'arm64' in arches else 'x86_64'}\n"
@@ -108,11 +115,12 @@ def render_cask(repository, version, run_id, attempt, digest, minimum, arches):
   homepage "https://github.com/{UPSTREAM}"
 
   conflicts_with cask: "finetune"
-{arch_line}  depends_on macos: ">= {minimum}"
+{arch_line}  depends_on macos: ">= :{macos_name}"
 
   app "FineTune.app"
 
   caveats <<~EOS
+    This build requires macOS {minimum} or later.
     This upstream community build is ad-hoc signed and is not notarized by Apple.
     Allow it in System Settings > Privacy & Security if macOS blocks first launch.
     Grant audio capture, microphone and Bluetooth access when prompted as needed.

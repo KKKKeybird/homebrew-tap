@@ -71,6 +71,8 @@ class FineTuneSyncTests(unittest.TestCase):
         first = sync.render_cask(*args)
         self.assertIn('version "1.9.1,123.1"', first)
         self.assertIn('depends_on arch: :arm64', first)
+        self.assertIn('depends_on macos: ">= :sequoia"', first)
+        self.assertIn('requires macOS 15.4 or later', first)
         args[3] = 2
         rerun = sync.render_cask(*args)
         self.assertIn('version "1.9.1,123.2"', rerun)
