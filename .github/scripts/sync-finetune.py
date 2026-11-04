@@ -115,7 +115,7 @@ def render_cask(repository, version, run_id, attempt, digest, minimum, arches):
   homepage "https://github.com/{UPSTREAM}"
 
   conflicts_with cask: "finetune"
-{arch_line}  depends_on macos: ">= :{macos_name}"
+{arch_line}  depends_on macos: :{macos_name}
 
   app "FineTune.app"
 
