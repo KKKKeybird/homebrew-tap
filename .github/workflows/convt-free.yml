@@ -30,3 +30,34 @@ jobs:
           git add Casks/convt-free.rb
           git commit -m 'chore: update convt-free from verified release'
           git push
+  test:
+    needs: update
+    runs-on: macos-15
+    permissions:
+      contents: read
+    steps:
+      - name: Install published cask through Homebrew
+        run: |
+          test "$(uname -m)" = arm64
+          brew tap KKKKeybird/tap
+          brew install --cask KKKKeybird/tap/convt-free
+          test -d /Applications/convt.app/Contents/PlugIns/FinderSync.appex
+          test -f "$HOME/Library/Services/convt-free.workflow/Contents/document.wflow"
+          codesign --verify --deep --strict /Applications/convt.app
+      - name: Run the installed CLI and check upgrade handling
+        run: |
+          work=$(mktemp -d)
+          printf '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="12"><rect width="16" height="12" fill="red"/></svg>' > "$work/sample.svg"
+          convt-free "$work/sample.svg" --to png --out-dir "$work/out"
+          file "$work/out/sample.png" | grep 'PNG image data, 16 x 12'
+          convt-free license status
+          brew upgrade --cask convt-free
+          # This checks an already-current install. A real upgrade across two
+          # published versions remains a separate acceptance check.
+      - name: Uninstall and verify managed paths are removed
+        if: always()
+        run: |
+          brew uninstall --cask convt-free
+          test ! -e /Applications/convt.app
+          test ! -e /opt/homebrew/bin/convt-free
+          test ! -e "$HOME/Library/Services/convt-free.workflow"
