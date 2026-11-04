@@ -26,6 +26,11 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       HOMEBREW_NO_AUTO_UPDATE: '1'
     steps:
+      # setup-homebrew recreates a tap checkout. Run it before checkout and
+      # generation so it cannot delete the generated cask or Git credentials.
+      - name: Set up Homebrew
+        uses: Homebrew/actions/setup-homebrew@1f8e202ffddf94def7f42f6fa3a482e821489f9c # 2026.07.10.1
+
       - name: Check out tap
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -39,21 +44,12 @@ jobs:
         id: prepare
         run: python3 .github/scripts/sync-finetune.py
 
-      - name: Set up Homebrew
-        if: steps.prepare.outputs.changed == 'true'
-        uses: Homebrew/actions/setup-homebrew@1f8e202ffddf94def7f42f6fa3a482e821489f9c # 2026.07.10.1
-
       - name: Validate generated cask from this checkout
         if: steps.prepare.outputs.changed == 'true'
         run: |
           set -euo pipefail
           tap_dir="$(brew --repository)/Library/Taps/kkkkeybird/homebrew-tap"
-          mkdir -p "$(dirname "$tap_dir")"
-          if [ -e "$tap_dir" ]; then
-            echo 'Unexpected pre-existing tap checkout' >&2
-            exit 1
-          fi
-          ln -s "$GITHUB_WORKSPACE" "$tap_dir"
+          test "$(cd "$tap_dir" && pwd -P)" = "$(pwd -P)"
           brew style --cask KKKKeybird/tap/finetune-hwong
           brew audit --cask KKKKeybird/tap/finetune-hwong
 
@@ -99,6 +95,10 @@ jobs:
               --title "$RELEASE_TAG" --notes-file notes.md
           fi
           gh release edit "$RELEASE_TAG" -R "$GITHUB_REPOSITORY" --draft=false --latest=false
+
+      - name: Test Homebrew download and installation
+        if: steps.prepare.outputs.changed == 'true'
+        run: brew install --cask KKKKeybird/tap/finetune-hwong
 
       - name: Commit cask after successful release publication
         if: steps.prepare.outputs.changed == 'true'
