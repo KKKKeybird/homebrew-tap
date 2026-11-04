@@ -1,0 +1,16 @@
+{
+  "upstream": "hwong103/FineTune",
+  "workflow": "build-app.yml",
+  "run_id": 41743220786,
+  "run_attempt": 1,
+  "commit": "436fb8019af75af1615fd02752c6e2b6083ceda5",
+  "run_url": "https://github.com/hwong103/FineTune/actions/runs/41743220786",
+  "artifact_id": 13281463353,
+  "artifact_digest": "sha256:032fb9a1c6445ee12375f6fb539c192f7b3c8bef44b06334d9ccd046b4bf9ce4",
+  "version": "1.9.1",
+  "sha256": "9d8a46f46975f459ff196f27da78f76be4273c5b3c05b0598d366993c817b27e",
+  "minimum_macos": "15.4",
+  "architectures": [
+    "arm64"
+  ]
+}
