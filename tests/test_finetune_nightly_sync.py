@@ -55,14 +55,17 @@ class FineTuneNightlySyncTests(unittest.TestCase):
     def test_render_cask_has_version_url_conflicts_and_brew_update(self):
         cask = sync.render_cask(
             "KKKKeybird/homebrew-tap",
-            "finetune-nightly-42",
+            "finetune-nightly-#{version}-42",
             "1.9.1-nightly.20261107.1",
             "a" * 64,
             "15.4",
             {"arm64", "x86_64"},
         )
         self.assertIn('version "1.9.1-nightly.20261107.1"', cask)
-        self.assertIn("releases/download/finetune-nightly-42/FineTune-Nightly.zip", cask)
+        self.assertIn(
+            "releases/download/finetune-nightly-#{version}-42/FineTune-Nightly.zip",
+            cask,
+        )
         self.assertIn('conflicts_with cask: ["finetune", "finetune-hwong"]', cask)
         self.assertIn("brew upgrade --cask finetune-nightly", cask)
         self.assertNotIn("depends_on arch:", cask)

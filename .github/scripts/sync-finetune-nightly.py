@@ -121,7 +121,7 @@ def inspect_app(work, version):
 def render_cask(tap_repository, tap_tag, version, digest, minimum, arches):
     if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", tap_repository):
         raise ValueError("Invalid tap repository")
-    if not re.fullmatch(r"[A-Za-z0-9_.-]+", tap_tag):
+    if not re.fullmatch(r"finetune-nightly-#\{version\}-[0-9]+", tap_tag):
         raise ValueError("Invalid tap release tag")
     if not VERSION_RE.fullmatch(version) or not re.fullmatch(r"[0-9a-f]{64}", digest):
         raise ValueError("Invalid version or SHA-256")
@@ -162,7 +162,7 @@ def main():
     release = select_release(api(f"repos/{UPSTREAM}/releases?per_page=100"))
     installer_asset, checksum_asset, version = select_assets(release)
     previous = json.loads(STATE.read_text()) if STATE.exists() else {}
-    tap_tag = f"finetune-nightly-{release['id']}"
+    tap_tag = f"finetune-nightly-{version}-{release['id']}"
     if (previous.get("release_id") == release["id"] and CASK.exists()
             and tap_release_exists(tap_repository, tap_tag)):
         print("FineTune Nightly is current; nothing to publish.")
@@ -183,7 +183,8 @@ def main():
         validate_archive(installer, version)
         minimum, arches = inspect_app(work, version)
 
-        cask = render_cask(tap_repository, tap_tag, version, digest, minimum, arches)
+        tap_tag_template = f"finetune-nightly-#{{version}}-{release['id']}"
+        cask = render_cask(tap_repository, tap_tag_template, version, digest, minimum, arches)
         CASK.parent.mkdir(exist_ok=True)
         CASK.write_text(cask)
         command("ruby", "-c", str(CASK))
@@ -193,6 +194,7 @@ def main():
             "release_id": release["id"],
             "release_tag": release["tag_name"],
             "release_url": release["html_url"],
+            "tap_tag": tap_tag,
             "version": version,
             "source_sha256": digest,
             "minimum_macos": minimum,
