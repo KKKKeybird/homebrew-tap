@@ -1,6 +1,7 @@
 import importlib.util
 from pathlib import Path
 import unittest
+from unittest.mock import Mock, patch
 
 spec = importlib.util.spec_from_file_location(
     "nightly_sync",
@@ -65,6 +66,14 @@ class FineTuneNightlySyncTests(unittest.TestCase):
         self.assertIn('conflicts_with cask: ["finetune", "finetune-hwong"]', cask)
         self.assertIn("brew upgrade --cask finetune-nightly", cask)
         self.assertNotIn("depends_on arch:", cask)
+
+    def test_tap_release_presence_is_verified_not_assumed(self):
+        with patch.object(sync.subprocess, "run", return_value=Mock(returncode=1)) as run:
+            self.assertFalse(sync.tap_release_exists(
+                "KKKKeybird/homebrew-tap", "finetune-nightly-42"))
+        with patch.object(sync.subprocess, "run", return_value=Mock(returncode=0)):
+            self.assertTrue(sync.tap_release_exists(
+                "KKKKeybird/homebrew-tap", "finetune-nightly-42"))
 
 
 if __name__ == "__main__":

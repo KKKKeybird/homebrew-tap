@@ -70,6 +70,16 @@ def download_asset(asset, target):
         )
 
 
+def tap_release_exists(tap_repository, tap_tag):
+    result = subprocess.run(
+        ["gh", "release", "view", tap_tag, "-R", tap_repository,
+         "--json", "assets"],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    return result.returncode == 0
+
+
 def validate_archive(installer, version):
     with zipfile.ZipFile(installer) as archive:
         names = set(archive.namelist())
@@ -152,7 +162,9 @@ def main():
     release = select_release(api(f"repos/{UPSTREAM}/releases?per_page=100"))
     installer_asset, checksum_asset, version = select_assets(release)
     previous = json.loads(STATE.read_text()) if STATE.exists() else {}
-    if previous.get("release_id") == release["id"] and CASK.exists():
+    tap_tag = f"finetune-nightly-{release['id']}"
+    if (previous.get("release_id") == release["id"] and CASK.exists()
+            and tap_release_exists(tap_repository, tap_tag)):
         print("FineTune Nightly is current; nothing to publish.")
         return
 
@@ -171,7 +183,6 @@ def main():
         validate_archive(installer, version)
         minimum, arches = inspect_app(work, version)
 
-        tap_tag = f"finetune-nightly-{release['id']}"
         cask = render_cask(tap_repository, tap_tag, version, digest, minimum, arches)
         CASK.parent.mkdir(exist_ok=True)
         CASK.write_text(cask)
