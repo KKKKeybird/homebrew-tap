@@ -134,8 +134,7 @@ def render_cask(tap_repository, tap_tag, version, digest, minimum, arches):
   version "{version}"
   sha256 "{digest}"
 
-  url "https://github.com/{tap_repository}/releases/download/{tap_tag}/FineTune-Nightly.zip",
-      verified: "github.com/{tap_repository}/"
+  url "https://github.com/{tap_repository}/releases/download/{tap_tag}/FineTune-Nightly.zip"
   name "FineTune Nightly"
   desc "Per-app volume control, audio routing and EQ (community nightly)"
   homepage "https://github.com/{UPSTREAM}"
