@@ -64,13 +64,13 @@ jobs:
           from pathlib import Path
           p = json.loads(Path('provenance.json').read_text())
           Path('notes.md').write_text(
-              f"FineTune community nightly mirrored from {p['upstream']}.\\n\\n"
-              f"Source release: {p['release_url']}\\n\\n"
-              f"Version: {p['version']}\\n\\n"
+              f"FineTune community nightly mirrored from {p['upstream']}.\n\n"
+              f"Source release: {p['release_url']}\n\n"
+              f"Version: {p['version']}\n\n"
               f"Architectures: {', '.join(p['architectures'])}; "
-              f"macOS >= {p['minimum_macos']}.\\n\\n"
+              f"macOS >= {p['minimum_macos']}.\n\n"
               "This build is ad-hoc signed and not notarized. Install and update it "
-              "through Homebrew: brew install --cask finetune-nightly.\\n"
+              "through Homebrew: brew install --cask finetune-nightly.\n"
           )
           PY
           if gh release view "$RELEASE_TAG" -R "$GITHUB_REPOSITORY" --json isDraft > release.json; then
@@ -103,6 +103,10 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add Casks/finetune-nightly.rb .github/finetune-nightly.json
+          if git diff --cached --quiet; then
+            echo "Cask already matches the published immutable release."
+            exit 0
+          fi
           git commit -m 'Update finetune-nightly cask'
           for attempt in 1 2 3; do
             git pull --rebase origin main
