@@ -7,13 +7,13 @@ cask "finetune-nightly" do
   desc "Per-app volume control, audio routing and EQ (community nightly)"
   homepage "https://github.com/KKKKeybird/FineTune"
 
-  depends_on macos: :sequoia
-
-  app "FineTune Nightly.app"
-
   livecheck do
     skip "Version checks are handled by the FineTune Nightly sync workflow."
   end
+
+  depends_on macos: :sequoia
+
+  app "FineTune Nightly.app"
 
   caveats <<~EOS
     This build requires macOS 15.4 or later.

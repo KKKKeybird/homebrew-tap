@@ -139,13 +139,13 @@ def render_cask(tap_repository, tap_tag, version, digest, minimum, arches):
   desc "Per-app volume control, audio routing and EQ (community nightly)"
   homepage "https://github.com/{UPSTREAM}"
 
-{arch_line}  depends_on macos: :sequoia
-
-  app "FineTune Nightly.app"
-
   livecheck do
     skip "Version checks are handled by the FineTune Nightly sync workflow."
   end
+
+{arch_line}  depends_on macos: :sequoia
+
+  app "FineTune Nightly.app"
 
   caveats <<~EOS
     This build requires macOS {minimum} or later.
