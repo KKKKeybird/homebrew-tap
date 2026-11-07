@@ -15,6 +15,7 @@ jobs:
       matrix:
         cask:
           - fn-sync
+          - finetune-nightly
           - haima-cloud
           - macchiato
           - moonlight-vplus

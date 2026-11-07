@@ -1,0 +1,13 @@
+{
+  "upstream": "KKKKeybird/FineTune",
+  "release_id": 437451463,
+  "release_tag": "nightly-20261107-2",
+  "release_url": "https://github.com/KKKKeybird/FineTune/releases/tag/nightly-20261107-2",
+  "version": "1.9.1-nightly.20261107.2",
+  "source_sha256": "7e010f019f0ae84814a17b42329f8c22006f7664b33b163d53d35ca466df4fee",
+  "minimum_macos": "15.4",
+  "architectures": [
+    "arm64",
+    "x86_64"
+  ]
+}
