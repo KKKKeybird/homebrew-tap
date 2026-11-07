@@ -143,6 +143,10 @@ def render_cask(tap_repository, tap_tag, version, digest, minimum, arches):
 
   app "FineTune Nightly.app"
 
+  livecheck do
+    skip "Version checks are handled by the FineTune Nightly sync workflow."
+  end
+
   caveats <<~EOS
     This build requires macOS {minimum} or later.
     This community nightly is ad-hoc signed and is not notarized by Apple.

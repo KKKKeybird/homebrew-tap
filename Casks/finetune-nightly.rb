@@ -11,6 +11,10 @@ cask "finetune-nightly" do
 
   app "FineTune Nightly.app"
 
+  livecheck do
+    skip "Version checks are handled by the FineTune Nightly sync workflow."
+  end
+
   caveats <<~EOS
     This build requires macOS 15.4 or later.
     This community nightly is ad-hoc signed and is not notarized by Apple.
