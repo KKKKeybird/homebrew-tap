@@ -7,7 +7,6 @@ cask "finetune-nightly" do
   desc "Per-app volume control, audio routing and EQ (community nightly)"
   homepage "https://github.com/KKKKeybird/FineTune"
 
-  conflicts_with cask: ["finetune", "finetune-hwong"]
   depends_on macos: :sequoia
 
   app "FineTune Nightly.app"

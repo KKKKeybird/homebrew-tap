@@ -66,7 +66,7 @@ class FineTuneNightlySyncTests(unittest.TestCase):
             "releases/download/finetune-nightly-#{version}-42/FineTune-Nightly.zip",
             cask,
         )
-        self.assertIn('conflicts_with cask: ["finetune", "finetune-hwong"]', cask)
+        self.assertNotIn("conflicts_with cask:", cask)
         self.assertIn("brew upgrade --cask finetune-nightly", cask)
         self.assertNotIn("depends_on arch:", cask)
 

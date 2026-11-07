@@ -139,7 +139,6 @@ def render_cask(tap_repository, tap_tag, version, digest, minimum, arches):
   desc "Per-app volume control, audio routing and EQ (community nightly)"
   homepage "https://github.com/{UPSTREAM}"
 
-  conflicts_with cask: ["finetune", "finetune-hwong"]
 {arch_line}  depends_on macos: :sequoia
 
   app "FineTune Nightly.app"
