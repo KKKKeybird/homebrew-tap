@@ -1,8 +1,8 @@
 cask "finetune-nightly" do
-  version "1.9.1-nightly.20261107.2"
-  sha256 "7e010f019f0ae84814a17b42329f8c22006f7664b33b163d53d35ca466df4fee"
+  version "1.9.1-nightly.20261107.3"
+  sha256 "c7d3eb1cf32156a752d84056a75d7f51146d3074fac40fad76b954693f3aee7e"
 
-  url "https://github.com/KKKKeybird/homebrew-tap/releases/download/finetune-nightly-#{version}-437451463/FineTune-Nightly.zip"
+  url "https://github.com/KKKKeybird/homebrew-tap/releases/download/finetune-nightly-#{version}-437894354/FineTune-Nightly.zip"
   name "FineTune Nightly"
   desc "Per-app volume control, audio routing and EQ (community nightly)"
   homepage "https://github.com/KKKKeybird/FineTune"
