@@ -14,7 +14,14 @@ import zipfile
 UPSTREAM = "KKKKeybird/FineTune"
 CASK = Path("Casks/finetune-nightly.rb")
 STATE = Path(".github/finetune-nightly.json")
-VERSION_RE = re.compile(r"^1\.9\.1-nightly\.[0-9]{8}\.[0-9]+$")
+VERSION_RE = re.compile(
+    r"^1\.9\.1-nightly\.[0-9]{8}\.(?:[0-9]+|[0-9a-f]{12})$"
+)
+RELEASE_TAG_RE = re.compile(r"^nightly-[0-9]{8}-(?:[0-9]+|[0-9a-f]{12})$")
+ASSET_RE = re.compile(
+    r"^FineTune-Nightly-(?P<version>"
+    r"1\.9\.1-nightly\.[0-9]{8}\.(?:[0-9]+|[0-9a-f]{12}))\.zip$"
+)
 
 
 def command(*args):
@@ -30,7 +37,7 @@ def select_release(releases):
     for release in releases:
         tag = release.get("tag_name", "")
         if (not release.get("draft") and release.get("prerelease")
-                and re.fullmatch(r"nightly-[0-9]{8}-[0-9]+", tag)):
+                and RELEASE_TAG_RE.fullmatch(tag)):
             candidates.append(release)
     if not candidates:
         raise ValueError("No FineTune Nightly prerelease found")
@@ -39,8 +46,7 @@ def select_release(releases):
 
 def select_assets(release):
     zips = [asset for asset in release.get("assets", [])
-            if re.fullmatch(r"FineTune-Nightly-1\.9\.1-nightly\.[0-9]{8}\.[0-9]+\.zip",
-                            asset.get("name", ""))]
+            if ASSET_RE.fullmatch(asset.get("name", ""))]
     sums = [asset for asset in release.get("assets", [])
             if asset.get("name", "").endswith(".sha256")
             and asset.get("name") == zips[0]["name"].removesuffix(".zip") + ".sha256"] if len(zips) == 1 else []

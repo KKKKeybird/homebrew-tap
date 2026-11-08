@@ -13,10 +13,10 @@ spec.loader.exec_module(sync)
 
 class FineTuneNightlySyncTests(unittest.TestCase):
     def release(self, **overrides):
-        version = "1.9.1-nightly.20261107.1"
+        version = "1.9.1-nightly.20261108.d3a5f10c9c34"
         release = dict(
             id=42,
-            tag_name="nightly-20261107-1",
+            tag_name="nightly-20261108-d3a5f10c9c34",
             prerelease=True,
             draft=False,
             created_at="2026-11-07T08:00:00Z",
@@ -33,6 +33,18 @@ class FineTuneNightlySyncTests(unittest.TestCase):
         latest = self.release(id=2)
         self.assertEqual(sync.select_release([older, latest]), latest)
 
+    def test_accepts_legacy_run_number_release(self):
+        legacy_version = "1.9.1-nightly.20261107.1"
+        legacy = self.release(
+            id=1,
+            tag_name="nightly-20261107-1",
+            assets=[
+                dict(id=1, name=f"FineTune-Nightly-{legacy_version}.zip", state="uploaded"),
+                dict(id=2, name=f"FineTune-Nightly-{legacy_version}.sha256", state="uploaded"),
+            ],
+        )
+        self.assertEqual(sync.select_assets(legacy)[2], legacy_version)
+
     def test_ignores_stable_and_draft_releases(self):
         with self.assertRaises(ValueError):
             sync.select_release([
@@ -42,7 +54,7 @@ class FineTuneNightlySyncTests(unittest.TestCase):
 
     def test_requires_one_complete_zip_and_checksum_pair(self):
         self.assertEqual(sync.select_assets(self.release())[2],
-                         "1.9.1-nightly.20261107.1")
+                         "1.9.1-nightly.20261108.d3a5f10c9c34")
         for assets in (
             self.release()["assets"][:1],
             self.release()["assets"] * 2,
@@ -56,12 +68,12 @@ class FineTuneNightlySyncTests(unittest.TestCase):
         cask = sync.render_cask(
             "KKKKeybird/homebrew-tap",
             "finetune-nightly-#{version}-42",
-            "1.9.1-nightly.20261107.1",
+            "1.9.1-nightly.20261108.d3a5f10c9c34",
             "a" * 64,
             "15.4",
             {"arm64", "x86_64"},
         )
-        self.assertIn('version "1.9.1-nightly.20261107.1"', cask)
+        self.assertIn('version "1.9.1-nightly.20261108.d3a5f10c9c34"', cask)
         self.assertIn(
             "releases/download/finetune-nightly-#{version}-42/FineTune-Nightly.zip",
             cask,
