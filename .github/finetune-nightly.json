@@ -1,11 +1,11 @@
 {
   "upstream": "KKKKeybird/FineTune",
-  "release_id": 437894354,
-  "release_tag": "nightly-20261107-3",
-  "release_url": "https://github.com/KKKKeybird/FineTune/releases/tag/nightly-20261107-3",
-  "tap_tag": "finetune-nightly-1.9.1-nightly.20261107.3-437894354",
-  "version": "1.9.1-nightly.20261107.3",
-  "source_sha256": "c7d3eb1cf32156a752d84056a75d7f51146d3074fac40fad76b954693f3aee7e",
+  "release_id": 438101914,
+  "release_tag": "nightly-20261108-e346c320b48d",
+  "release_url": "https://github.com/KKKKeybird/FineTune/releases/tag/nightly-20261108-e346c320b48d",
+  "tap_tag": "finetune-nightly-1.9.1-nightly.20261108.e346c320b48d-438101914",
+  "version": "1.9.1-nightly.20261108.e346c320b48d",
+  "source_sha256": "4e15787012e7898c9ba3211e1e3c18cce18e72c33cd849688d2a81fc7b4e4efb",
   "minimum_macos": "15.4",
   "architectures": [
     "arm64",
