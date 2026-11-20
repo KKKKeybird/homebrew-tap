@@ -1,6 +1,6 @@
 cask "scriptplayerplus" do
-  version "0.7.2"
-  sha256 "84f25082fed94cb180ab4780ff6c494fc65f39fd825026d764bfd77af2887a4b"
+  version "0.7.3"
+  sha256 "eb72b2c52409525828b97901c03078f61e67fc704eb465232ce93c90c95f6311"
 
   url "https://github.com/sioaeko/scriptplayer-plus/releases/download/v#{version}/ScriptPlayerPlus-#{version}-arm64-mac.dmg"
   name "ScriptPlayer+"
