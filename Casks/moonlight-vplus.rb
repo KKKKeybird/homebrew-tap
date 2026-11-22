@@ -1,6 +1,6 @@
 cask "moonlight-vplus" do
-  version "6.5.6"
-  sha256 "98356ffa6a4c5db186e1f4a7dbd2284668b671e45e319102815fe20fd09b0e41"
+  version "6.5.7"
+  sha256 "449757ee8b4361494db9600b41aa5aed147b329da125177fb1acc232d81790a2"
 
   url "https://github.com/qiin2333/moonlight-qt/releases/download/v#{version}/Moonlight-VPlus-#{version}-arm64.dmg"
   name "Moonlight V+"
