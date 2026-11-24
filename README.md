@@ -6,6 +6,7 @@ Personal Homebrew tap for packages maintained by KeyBird.
 
 | Cask               | Application       |
 | ------------------ | ----------------- |
+| `chainner`         | chaiNNer          |
 | `finetune-nightly` | FineTune community nightly |
 | `fn-sync`          | 飞牛同步          |
 | `haima-cloud`      | 海马云电脑        |
@@ -42,3 +43,13 @@ brew upgrade --cask finetune-nightly
 The Nightly uses a separate bundle identifier so it does not replace the
 upstream build. It is ad-hoc signed and not notarized, and its
 updates are managed by Homebrew rather than Sparkle.
+
+For chaiNNer, install and update with:
+
+```sh
+brew install --cask KKKKeybird/tap/chainner
+brew upgrade --cask chainner
+```
+
+The current chaiNNer macOS build is not notarized by Apple. Allow it in
+System Settings > Privacy & Security if macOS blocks first launch.
