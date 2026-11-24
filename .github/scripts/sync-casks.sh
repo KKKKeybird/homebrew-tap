@@ -6,9 +6,9 @@ cd "${repo_root}"
 
 target="${1:-}"
 case "${target}" in
-  chainner|fn-sync|haima-cloud|macchiato|moonlight-vplus|qiyou|scriptplayerplus|tmog|xenolauncher) ;;
+  fn-sync|haima-cloud|macchiato|moonlight-vplus|qiyou|scriptplayerplus|tmog|xenolauncher) ;;
   *)
-    echo "Usage: $0 {chainner|fn-sync|haima-cloud|macchiato|moonlight-vplus|qiyou|scriptplayerplus|tmog|xenolauncher}" >&2
+    echo "Usage: $0 {fn-sync|haima-cloud|macchiato|moonlight-vplus|qiyou|scriptplayerplus|tmog|xenolauncher}" >&2
     exit 2
     ;;
 esac
@@ -72,9 +72,6 @@ sync_github_cask() {
 }
 
 case "${target}" in
-  chainner)
-    sync_github_cask "chainner" "chaiNNer-org/chaiNNer" "v" "chaiNNer-{version}-macos-universal.dmg"
-    ;;
   macchiato)
     sync_github_cask "macchiato" "ObservedObserver/Macchiato" "" "Macchiato.dmg"
     ;;
